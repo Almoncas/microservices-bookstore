@@ -13,7 +13,6 @@ import org.springframework.test.context.jdbc.Sql;
 import com.nttdata.nova.bookStore.entities.Book;
 import com.nttdata.nova.bookStore.entities.Editorial;
 import com.nttdata.nova.bookStore.repositories.IBookRepository;
-import com.nttdata.nova.bookStore.repositories.IEditorialRepository;
 
 
 
@@ -23,10 +22,6 @@ public class BookDataJpaTest {
 	
 	@Autowired
 	IBookRepository bookRepository;
-	
-	@Autowired
-	IEditorialRepository editorialRepository;
-	
 	
 	@Test
 	public void addBookTest() {
@@ -63,7 +58,9 @@ public class BookDataJpaTest {
 	
 	@Test
 	public void findByEditorialTest() {
-		Editorial ed=editorialRepository.getById((long)100); //No deberia usar nada de Editorial en el test de Book
+		Editorial ed=new Editorial();
+		ed.setId((long)100);
+		ed.setName("Editorial100");
 		assertThat(bookRepository.findByEditorial(ed)).isNotNull();
 	}
 
@@ -80,11 +77,11 @@ public class BookDataJpaTest {
 		Date date1=calendar.getTime();
 		
 		book.setPublish(date1);
-		book.setPaginas(500);
-		book.setDescripcion("Descripcion del libro4");
+		book.setPages(500);
+		book.setDescription("Descripcion del libro4");
 		Editorial editorial=new Editorial();
-		editorial.setId(10);
-		editorial.setName("Editorial 10");
+		editorial.setId(100);
+		editorial.setName("Editorial 100");
 		book.setEditorial(editorial);
 		
 		return book;

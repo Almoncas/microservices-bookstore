@@ -16,9 +16,12 @@ import com.nttdata.nova.bookStore.entities.Editorial;
 @Repository
 public interface IBookRepository extends JpaRepository<Book,Long> {
 	
+	@Query("SELECT b FROM Book b WHERE b.title LIKE %:title%")
 	public Book findByTitle(String title);
 	
 	@Query("SELECT b FROM Book b WHERE b.editorial LIKE :editorial")
-	public List<Book> findByEditorial(@Param("editorial") Editorial search);
+	public List<Book> findByEditorial(@Param("editorial") Editorial search); 
 
 }
+
+

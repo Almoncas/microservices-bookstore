@@ -1,5 +1,9 @@
 package com.nttdata.nova.bookStore.entities;
 
+import java.io.Serializable;
+
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,7 +19,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="book")
-public class Book {
+public class Book implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@Column(name="id")
@@ -23,25 +29,37 @@ public class Book {
 	@SequenceGenerator(name = "book_seq", sequenceName = "book_sequence", allocationSize = 1)
 	private Long id;
 	
-	@Column(name="title")
+	@Column(name="title", nullable=false, length=150)
 	private String title;
 	
-	@Column(name="author")
+	@Column(name="author", nullable=false, length=150)
 	private String author;
 	
-	@Column(name="publish")
+	@Column(name="publish",nullable=false)
 	@DateTimeFormat(pattern="dd/MM/yyyy")
-	private java.util.Date publish;
+	private Date publish;
 	
-	@Column(name="paginas")
-	private int paginas;
+	@Column(name="pages", nullable=false)
+	private int pages;
 	
-	@Column(name="descripcion")
-	private String descripcion;
+	@Column(name="description",nullable=true,length=500)
+	private String description;
 	
-	@ManyToOne(fetch =FetchType.LAZY)
-	@JoinColumn(name="editorial")
+	@ManyToOne(fetch =FetchType.EAGER, optional=false)
+	@JoinColumn(name="id_editorial", nullable=false)
 	private Editorial editorial;
+	
+	public Book() {
+	}
+	
+	public Book(String title, String author, Date publish, Integer pages, String description, Editorial editorial) {
+		this.title=title;
+		this.author=author;
+		this.publish=publish;
+		this.pages=pages;
+		this.description=description;
+		this.editorial=editorial;
+	}
 
 	public long getId() {
 		return id;
@@ -75,20 +93,20 @@ public class Book {
 		this.publish = date1;
 	}
 
-	public int getPaginas() {
-		return paginas;
+	public int getPages() {
+		return pages;
 	}
 
-	public void setPaginas(int paginas) {
-		this.paginas = paginas;
+	public void setPages(int pages) {
+		this.pages = pages;
 	}
 
-	public String getDescripcion() {
-		return descripcion;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setDescription(String description) {
+		this.description = description;
 	} 
 	
 	public Editorial getEditorial() {

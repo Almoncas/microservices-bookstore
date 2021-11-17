@@ -1,10 +1,11 @@
 package com.nttdata.nova.bookStore.entities;
 
+import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,19 +15,24 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="editorial")
-public class Editorial {
+public class Editorial implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@Column(name="id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator="editorial_seq")
 	@SequenceGenerator(name = "editorial_seq", sequenceName = "editorial_sequence", allocationSize = 1)
 	private Long id;
 	
-	@Column(name="name")
+	@Column(name="name", nullable=false,length=150)
 	private String name;
 	
-	@OneToMany(mappedBy="editorial",cascade=CascadeType.REMOVE,orphanRemoval = true)
+	@OneToMany(mappedBy="editorial", fetch=FetchType.LAZY)//,cascade=CascadeType.REMOVE,orphanRemoval = true)
 	private Set<Book> BookList ;
+	
+	public Editorial() {
+	}
 
 	public long getId() {
 		return id;

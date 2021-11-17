@@ -17,11 +17,6 @@ public class EditorialDataJpaTest {
 	@Autowired
 	IEditorialRepository editorialRepository;
 	
-	@Test
-	public void deleteAllTest() {
-		editorialRepository.deleteAll();
-		assertThat(editorialRepository.findAll().isEmpty());
-	}
 	
 	@Test
 	public void deleteByIdTest() {
@@ -52,5 +47,6 @@ public class EditorialDataJpaTest {
 		
 		return editorial;
 	}
+	
 
 }
