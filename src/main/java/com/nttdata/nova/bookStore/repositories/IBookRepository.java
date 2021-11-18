@@ -11,16 +11,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.nttdata.nova.bookStore.entities.Book;
-import com.nttdata.nova.bookStore.entities.Editorial;
 
 @Repository
 public interface IBookRepository extends JpaRepository<Book,Long> {
 	
 	@Query("SELECT b FROM Book b WHERE b.title LIKE %:title%")
-	public Book findByTitle(String title);
+	public List<Book> searchByTitle(String title);
 	
-	@Query("SELECT b FROM Book b WHERE b.editorial LIKE :editorial")
-	public List<Book> findByEditorial(@Param("editorial") Editorial search); 
+	@Query("SELECT b FROM Book b WHERE b.editorial.id LIKE :id")
+	public List<Book> searchByEditorial(@Param("id") long id); 
 
 }
 

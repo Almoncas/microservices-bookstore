@@ -15,38 +15,37 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.nttdata.nova.bookStore.dto.BookDto;
 
 @Entity
-@Table(name="book")
+@Table(name="BOOK")
 public class Book implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@Column(name="id")
+	@Column(name="ID")
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="book_seq")
 	@SequenceGenerator(name = "book_seq", sequenceName = "book_sequence", allocationSize = 1)
 	private Long id;
 	
-	@Column(name="title", nullable=false, length=150)
+	@Column(name="TITLE", nullable=false, length=150)
 	private String title;
 	
-	@Column(name="author", nullable=false, length=150)
+	@Column(name="AUTHOR", nullable=false, length=150)
 	private String author;
 	
-	@Column(name="publish",nullable=false)
-	@DateTimeFormat(pattern="dd/MM/yyyy")
+	@Column(name="PUBLISH",nullable=false)
 	private Date publish;
 	
-	@Column(name="pages", nullable=false)
+	@Column(name="PAGES", nullable=false)
 	private int pages;
 	
-	@Column(name="description",nullable=true,length=500)
+	@Column(name="DESCRIPTION",nullable=true,length=500)
 	private String description;
 	
-	@ManyToOne(fetch =FetchType.EAGER, optional=false)
-	@JoinColumn(name="id_editorial", nullable=false)
+	@ManyToOne(fetch =FetchType.EAGER, optional=false) //cascade=CascadeType.ALL)
+	@JoinColumn(name="editorial_id", nullable=false)
 	private Editorial editorial;
 	
 	public Book() {
@@ -59,6 +58,16 @@ public class Book implements Serializable {
 		this.pages=pages;
 		this.description=description;
 		this.editorial=editorial;
+	}
+
+	public Book(BookDto bookDto) {
+		this.id = bookDto.getId();
+		this.title = bookDto.getTitle();
+		this.author = bookDto.getAuthor();
+		this.publish = bookDto.getPublish();
+		this.pages = bookDto.getPages();
+		this.description = bookDto.getDescription();
+		this.editorial = new Editorial(bookDto.getEditorial());
 	}
 
 	public long getId() {
