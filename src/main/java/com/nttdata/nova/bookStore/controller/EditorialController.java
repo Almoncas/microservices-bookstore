@@ -74,7 +74,7 @@ public class EditorialController {
 
 	@GetMapping(path="/get/id/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find an editorial by id", description = "Find an editorial by id method", tags={"EditorialRestServiceRead"})
-	public HttpEntity<EditorialDto> getEditorialById(@PathVariable("id") long id){
+	public HttpEntity<EditorialDto> getEditorialById(@PathVariable("id") Long id){
 		EditorialDto editorialDto = editorialService.findById(id);
 
 		if(editorialDto!=null) {
@@ -99,7 +99,7 @@ public class EditorialController {
 
 	@DeleteMapping(path="/delete/{id}")
 	@Operation(summary="Delete editorial", description="Delete editorial method", tags={"EditorialRestServiceWrite"})
-	public HttpEntity<String> deleteEditorial(@PathVariable("id") long id){
+	public HttpEntity<String> deleteEditorial(@PathVariable("id") Long id){
 		EditorialDto editorial = editorialService.findById(id);
 		editorialService.delete(editorial);
 

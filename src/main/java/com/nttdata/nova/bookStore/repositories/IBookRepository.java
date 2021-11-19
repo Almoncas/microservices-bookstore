@@ -19,7 +19,7 @@ public interface IBookRepository extends JpaRepository<Book,Long> {
 	public List<Book> searchByTitle(String title);
 	
 	@Query("SELECT b FROM Book b WHERE b.editorial.id LIKE :id")
-	public List<Book> searchByEditorial(@Param("id") long id); 
+	public List<Book> searchByEditorial(@Param("id") Long id); 
 
 }
 

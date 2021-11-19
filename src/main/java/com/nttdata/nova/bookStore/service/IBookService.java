@@ -9,9 +9,9 @@ public interface IBookService {
 	public BookDto save(BookDto book);
 	public BookDto update(BookDto book);
 	public void delete(BookDto book);
-	public BookDto findById(long id);
+	public BookDto findById(Long id);
 	public List<BookDto> findAll();
 	
 	public List<BookDto> searchByTitle(String search);
-	public List<BookDto> searchByEditorial(long id);
+	public List<BookDto> searchByEditorial(Long id);
 }

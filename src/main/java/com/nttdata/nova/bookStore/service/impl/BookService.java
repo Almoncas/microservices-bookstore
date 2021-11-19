@@ -35,7 +35,7 @@ public class BookService implements IBookService{
     }
 
     @Override
-    public BookDto findById(long id){
+    public BookDto findById(Long id){
         Optional<Book> book = bookRepository.findById(id);
         return book.isPresent() ? new BookDto(book.get()) : null;
     }
@@ -61,7 +61,7 @@ public class BookService implements IBookService{
     }
 
     @Override
-    public List<BookDto> searchByEditorial(long id){
+    public List<BookDto> searchByEditorial(Long id){
         List<BookDto> bookDtoList = new ArrayList<BookDto>();
 
         List<Book> bookList = (List<Book>) bookRepository.searchByEditorial(id);

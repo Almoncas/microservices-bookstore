@@ -115,7 +115,7 @@ public class BookController {
 
 	@GetMapping(path="/get/id/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by id", description = "Find a book by id method", tags={"BookRestServiceRead"})
-	public HttpEntity<BookDto> getBookById(@PathVariable("id") long id){
+	public HttpEntity<BookDto> getBookById(@PathVariable("id") Long id){
 		BookDto bookDto = bookService.findById(id);
 
 		if(bookDto!=null) {
@@ -131,7 +131,7 @@ public class BookController {
 
 	@GetMapping(path="/get/editorial", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by editorial", description = "Find a book by editorial method", tags={"BookRestServiceRead"})
-	public HttpEntity<List<BookDto>> getBooksByEditorial(@PathVariable long id){
+	public HttpEntity<List<BookDto>> getBooksByEditorial(@PathVariable Long id){
 		List<BookDto> bookDtoList = bookService.searchByEditorial(id);
 		bookDtoList.forEach(b -> {
 			if(b!=null) {
@@ -165,7 +165,7 @@ public class BookController {
 
 	@DeleteMapping(path="/delete/{id}")
 	@Operation(summary="Delete book", description = "Delete book method", tags={"BookRestServiceWrite"})
-	public HttpEntity<String> deleteBook(@PathVariable("id") long id){
+	public HttpEntity<String> deleteBook(@PathVariable("id") Long id){
 		BookDto book=bookService.findById(id);
 		bookService.delete(book);
 
