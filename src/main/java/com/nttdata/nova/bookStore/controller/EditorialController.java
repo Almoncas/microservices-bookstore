@@ -3,6 +3,7 @@ package com.nttdata.nova.bookStore.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.nttdata.nova.bookStore.dto.EditorialDto;
 import com.nttdata.nova.bookStore.exception.InvalidIdException;
@@ -33,39 +34,67 @@ public class EditorialController {
 	@PostMapping(path="/create", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert editorial", description="Insert editorial method", tags={"EditorialRestServiceWrite"})
 	public HttpEntity<EditorialDto> insertEditorial(@RequestBody EditorialDto editorial){
-		if(editorial.getId()!= 0){
+		if (editorial.getId() != 0) {
 			throw new InvalidIdException(editorial.getId());
 		}
+		
+		EditorialDto editorialDto = editorialService.save(editorial);
+		
+		if(editorialDto!=null) {
+			EditorialController.generateEditorialLinks(editorialDto);
+		}
 
-		return new ResponseEntity<EditorialDto>(editorialService.save(editorial),HttpStatus.OK);
+		return new ResponseEntity<EditorialDto>(editorialDto, HttpStatus.OK);
 	}
 
 	@PutMapping(path="/update", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Update editorial", description="Update editorial method", tags={"EditorialRestServiceWrite"})
 	public HttpEntity<EditorialDto> updateEditorial(@RequestBody EditorialDto editorial){
-		if(editorial.getId()==0){
+		if (editorial.getId() == 0) {
 			throw new InvalidIdException(editorial.getId());
 		}
+		
+		EditorialDto editorialDto = editorialService.update(editorial);
 
-		return new ResponseEntity<EditorialDto>(editorialService.update(editorial), HttpStatus.OK);
+		if(editorialDto!=null) {
+			EditorialController.generateEditorialLinks(editorialDto);
+		}
+		
+		return new ResponseEntity<EditorialDto>(editorialDto, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Get all editorials", description="Get all editorials method", tags={"EditorialRestServiceRead"})
 	public HttpEntity<List<EditorialDto>> getAllEditorial(){
-		return new ResponseEntity<List<EditorialDto>>(editorialService.findAll(),HttpStatus.OK);
+		List<EditorialDto> editorialDtoList = editorialService.findAll();
+		editorialDtoList.forEach(e -> EditorialController.generateEditorialLinks(e));
+
+		return new ResponseEntity<List<EditorialDto>>(editorialDtoList, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get/id/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find an editorial by id", description = "Find an editorial by id method", tags={"EditorialRestServiceRead"})
 	public HttpEntity<EditorialDto> getEditorialById(@PathVariable("id") long id){
-		return new ResponseEntity<EditorialDto>(editorialService.findById(id),HttpStatus.OK);
+		EditorialDto editorialDto = editorialService.findById(id);
+
+		if(editorialDto!=null) {
+			EditorialController.generateEditorialLinks(editorialDto);
+		}
+		
+		return new ResponseEntity<EditorialDto>(editorialDto, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get/name/{name}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find an editorial by name", description = "Find an editorial by name method", tags={"EditorialRestServiceRead"})
 	public HttpEntity<List<EditorialDto>> getEditorialByName(@PathVariable("name") String name){
-		return new ResponseEntity<List<EditorialDto>>(editorialService.findByName(name),HttpStatus.OK);
+		List<EditorialDto> editorialDtoList = editorialService.findByName(name);
+		editorialDtoList.forEach(e -> {
+			if(e!=null) {
+				EditorialController.generateEditorialLinks(e);
+			}
+		});
+		
+		return new ResponseEntity<List<EditorialDto>>(editorialDtoList, HttpStatus.OK);
 	}
 
 	@DeleteMapping(path="/delete/{id}")
@@ -76,4 +105,9 @@ public class EditorialController {
 
 		return new ResponseEntity<String>("Editorial with id"+id+" was deleted",HttpStatus.OK);
 	}
+
+	public static void generateEditorialLinks(EditorialDto editorialDto) {
+		editorialDto.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EditorialController.class).getEditorialById(editorialDto.getId())).withSelfRel());
+	}
+
 }

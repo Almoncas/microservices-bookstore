@@ -6,7 +6,9 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nttdata.nova.bookStore.entities.Book;
 
-public class BookDto implements Serializable{
+import org.springframework.hateoas.RepresentationModel;
+
+public class BookDto extends RepresentationModel<BookDto> implements Serializable{
 
     private static final long serialVersionUID=1L;
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,65 +44,123 @@ public class BookController {
 	@PostMapping(path="/create",consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert book", description = "Insert book method", tags={"BookRestServiceWrite"})
 	public HttpEntity<BookDto> insertBook (@RequestBody BookDto book){
-		
-		if(book.getId()!=0){
+		if(book.getId()!=0) {
 			throw new InvalidIdException(book.getId());
 		}
-
-		if(book.getPublish().after(Calendar.getInstance().getTime())){
+		
+		if(book.getPublish().after(Calendar.getInstance().getTime())) {
 			throw new InvalidDateException();
 		}
-
-		if(editorialService.findById(book.getEditorial().getId())==null){
+		
+		if(editorialService.findById(book.getEditorial().getId())==null) {
 			throw new InvalidEditorialException();
 		}
+		
+		
+		BookDto bookDto = bookService.save(book);
+		
+		if(bookDto!=null) {
+			BookController.generateBookLinks(bookDto);
+		}
+		
+		if(bookDto!=null && bookDto.getEditorial()!=null) {
+			EditorialController.generateEditorialLinks(bookDto.getEditorial());
+		}
 
-		BookDto bookDto=bookService.save(book);
-
-		return new ResponseEntity<BookDto>(bookDto,HttpStatus.OK);
+		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
 	
 	@PutMapping(path="/update", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Update book", description="Update book method", tags={"BookRestServiceWrite"})
 	public HttpEntity<BookDto> updateBook(@RequestBody BookDto book){
-		
-		if(book.getId()==0){
-			throw new InvalidIdException(book.getId());
-		}
 
-		if(book.getPublish().after(Calendar.getInstance().getTime())){
+		if(book.getId()==0) {
+			throw new  InvalidIdException(book.getId());
+		}
+		
+		if(book.getPublish().after(Calendar.getInstance().getTime())) {
 			throw new InvalidDateException();
 		}
-
-		if(editorialService.findById(book.getEditorial().getId())==null){
+		
+		if(editorialService.findById(book.getEditorial().getId())==null) {
 			throw new InvalidEditorialException();
 		}
+		
+		
+		
+		BookDto bookDto = bookService.update(book);
+		
+		if(bookDto!=null) {
+			BookController.generateBookLinks(bookDto);
+		}
+		
+		if(bookDto!=null && bookDto.getEditorial()!=null) {
+			EditorialController.generateEditorialLinks(bookDto.getEditorial());
+		}
 
-		return new ResponseEntity<BookDto>(bookService.update(book),HttpStatus.OK);
+		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Get all books", description = "Get all books method", tags={"BookRestServiceRead"})
 	public HttpEntity<List<BookDto>> getAllBooks(){
-		return new ResponseEntity<List<BookDto>>(bookService.findAll(),HttpStatus.OK);
+		List<BookDto> bookDtoList = bookService.findAll();
+		bookDtoList.forEach(b -> {
+			BookController.generateBookLinks(b);
+			EditorialController.generateEditorialLinks(b.getEditorial());
+		});
+
+		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get/id/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by id", description = "Find a book by id method", tags={"BookRestServiceRead"})
 	public HttpEntity<BookDto> getBookById(@PathVariable("id") long id){
-		return new ResponseEntity<BookDto>(bookService.findById(id),HttpStatus.OK);
+		BookDto bookDto = bookService.findById(id);
+
+		if(bookDto!=null) {
+			BookController.generateBookLinks(bookDto);
+		}
+		
+		if(bookDto!=null && bookDto.getEditorial()!=null) {
+			EditorialController.generateEditorialLinks(bookDto.getEditorial());
+		}
+
+		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get/editorial", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by editorial", description = "Find a book by editorial method", tags={"BookRestServiceRead"})
 	public HttpEntity<List<BookDto>> getBooksByEditorial(@PathVariable long id){
-		return new ResponseEntity<List<BookDto>>(bookService.searchByEditorial(id),HttpStatus.OK);
+		List<BookDto> bookDtoList = bookService.searchByEditorial(id);
+		bookDtoList.forEach(b -> {
+			if(b!=null) {
+				BookController.generateBookLinks(b);
+			}
+			
+			if(b!=null && b.getEditorial()!=null) {
+				EditorialController.generateEditorialLinks(b.getEditorial());
+			}
+		});
+
+		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
 	@GetMapping(path="/get/title/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by title", description = "Find a book by title method", tags={"BookRestServiceRead"})
 	public HttpEntity<List<BookDto>> getBooksByTitle(@PathVariable("title") String title){
-		return new ResponseEntity<List<BookDto>>(bookService.searchByTitle(title),HttpStatus.OK);
+		List<BookDto> bookDtoList = bookService.searchByTitle(title);
+		bookDtoList.forEach(b -> {
+			if(b!=null) {
+				BookController.generateBookLinks(b);
+			}
+			
+			if(b!=null && b.getEditorial()!=null) {
+				EditorialController.generateEditorialLinks(b.getEditorial());
+			}
+		});
+
+		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
 	@DeleteMapping(path="/delete/{id}")
@@ -111,6 +170,14 @@ public class BookController {
 		bookService.delete(book);
 
 		return new ResponseEntity<String>("Book with id=" + id + " was deleted",HttpStatus.OK);
+	}
+
+	public static void generateBookLinks(BookDto bookDto) {
+		bookDto.add(WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder.methodOn(BookController.class).getBookById(bookDto.getId())).withSelfRel());
+		bookDto.add(WebMvcLinkBuilder.linkTo(
+				WebMvcLinkBuilder.methodOn(EditorialController.class).getEditorialById(bookDto.getEditorial().getId()))
+				.withRel("editorial"));
 	}
 
 }

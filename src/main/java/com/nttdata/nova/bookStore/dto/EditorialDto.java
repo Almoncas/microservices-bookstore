@@ -5,8 +5,10 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nttdata.nova.bookStore.entities.Editorial;
 
+import org.springframework.hateoas.RepresentationModel;
 
-public class EditorialDto implements Serializable{
+
+public class EditorialDto extends RepresentationModel<EditorialDto> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
