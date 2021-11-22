@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nttdata.nova.bookStore.dto.BookDto;
 import com.nttdata.nova.bookStore.dto.BookRegistryDto;
+import com.nttdata.nova.bookStore.entities.KafkaEntities.KafkaProducer;
 import com.nttdata.nova.bookStore.exception.InvalidDateException;
 import com.nttdata.nova.bookStore.exception.InvalidEditorialException;
 import com.nttdata.nova.bookStore.exception.InvalidIdException;
@@ -45,6 +46,9 @@ public class BookController {
 
 	@Autowired
 	private IBookRegistryService bookRegistryService;
+
+	@Autowired
+	private KafkaProducer kafkaProducer;
 	
 	@PostMapping(path="/create",consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert book", description = "Insert book method", tags={"BookRestServiceWrite"})
@@ -72,7 +76,11 @@ public class BookController {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.CREATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.CREATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.CREATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null));
+
+
 
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
@@ -105,8 +113,10 @@ public class BookController {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.UPDATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.UPDATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
 
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.UPDATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null));
 
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
@@ -120,7 +130,9 @@ public class BookController {
 			EditorialController.generateEditorialLinks(b.getEditorial());
 		});
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ALL, null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ALL, null), Calendar.getInstance().getTime()));
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.FIND_ALL,null));
 
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
@@ -138,7 +150,9 @@ public class BookController {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ONE,  bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ONE,  bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.FIND_ONE, bookDto!=null ? String.valueOf(bookDto.getId()) : null));	
 
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
@@ -157,7 +171,9 @@ public class BookController {
 			}
 		});
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.SEARCH, null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.SEARCH, null), Calendar.getInstance().getTime()));
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.SEARCH, null));
 
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
@@ -178,6 +194,8 @@ public class BookController {
 
 		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.SEARCH, null), Calendar.getInstance().getTime()));
 
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.SEARCH,null));
+
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
@@ -187,7 +205,9 @@ public class BookController {
 		BookDto book=bookService.findById(id);
 		bookService.delete(book);
 
-		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.DELETE, id!=null ? String.valueOf(id) : null), Calendar.getInstance().getTime()));
+		//bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.DELETE, id!=null ? String.valueOf(id) : null), Calendar.getInstance().getTime()));
+
+		kafkaProducer.sendMessage(generateRegistryMessage(bookOperation.DELETE, id!=null ? String.valueOf(id) : null));
 
 		return new ResponseEntity<String>("Book with id=" + id + " was deleted",HttpStatus.OK);
 	}
