@@ -1,0 +1,1 @@
+http://localhost:8081/bookstore/swagger-ui.html
