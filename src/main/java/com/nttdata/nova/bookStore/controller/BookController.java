@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nttdata.nova.bookStore.dto.BookDto;
+import com.nttdata.nova.bookStore.dto.BookRegistryDto;
 import com.nttdata.nova.bookStore.exception.InvalidDateException;
 import com.nttdata.nova.bookStore.exception.InvalidEditorialException;
 import com.nttdata.nova.bookStore.exception.InvalidIdException;
+import com.nttdata.nova.bookStore.service.IBookRegistryService;
 import com.nttdata.nova.bookStore.service.IBookService;
 import com.nttdata.nova.bookStore.service.IEditorialService;
-
-
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -34,12 +34,17 @@ import org.springframework.http.MediaType;
 @RestController
 @RequestMapping("/bookstore")
 public class BookController {
+
+	private enum bookOperation {CREATE, UPDATE, DELETE, FIND_ALL, FIND_ONE, SEARCH};
 	
 	@Autowired
 	private IBookService bookService;
 
 	@Autowired
 	private IEditorialService editorialService;
+
+	@Autowired
+	private IBookRegistryService bookRegistryService;
 	
 	@PostMapping(path="/create",consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert book", description = "Insert book method", tags={"BookRestServiceWrite"})
@@ -66,6 +71,8 @@ public class BookController {
 		if(bookDto!=null && bookDto.getEditorial()!=null) {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
+
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.CREATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
 
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
@@ -98,6 +105,9 @@ public class BookController {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
 
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.UPDATE, bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
+
+
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
 
@@ -109,6 +119,8 @@ public class BookController {
 			BookController.generateBookLinks(b);
 			EditorialController.generateEditorialLinks(b.getEditorial());
 		});
+
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ALL, null), Calendar.getInstance().getTime()));
 
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
@@ -125,6 +137,8 @@ public class BookController {
 		if(bookDto!=null && bookDto.getEditorial()!=null) {
 			EditorialController.generateEditorialLinks(bookDto.getEditorial());
 		}
+
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.FIND_ONE,  bookDto!=null ? String.valueOf(bookDto.getId()) : null), Calendar.getInstance().getTime()));
 
 		return new ResponseEntity<BookDto>(bookDto, HttpStatus.OK);
 	}
@@ -143,6 +157,8 @@ public class BookController {
 			}
 		});
 
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.SEARCH, null), Calendar.getInstance().getTime()));
+
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
@@ -160,6 +176,8 @@ public class BookController {
 			}
 		});
 
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.SEARCH, null), Calendar.getInstance().getTime()));
+
 		return new ResponseEntity<List<BookDto>>(bookDtoList, HttpStatus.OK);
 	}
 
@@ -168,6 +186,8 @@ public class BookController {
 	public HttpEntity<String> deleteBook(@PathVariable("id") Long id){
 		BookDto book=bookService.findById(id);
 		bookService.delete(book);
+
+		bookRegistryService.save(new BookRegistryDto(generateRegistryMessage(bookOperation.DELETE, id!=null ? String.valueOf(id) : null), Calendar.getInstance().getTime()));
 
 		return new ResponseEntity<String>("Book with id=" + id + " was deleted",HttpStatus.OK);
 	}
@@ -180,4 +200,38 @@ public class BookController {
 				.withRel("editorial"));
 	}
 
+	private String generateRegistryMessage(bookOperation operation, String id){
+		String message=null;
+
+		switch(operation){
+		case CREATE: 
+		message = "CREATE book with id " + id;
+		break;
+		
+		case UPDATE:
+			message = "UPDATE book with id " + id;
+			break;
+			
+		case DELETE:
+			message = "DELETE book with id " + id;
+			break;
+			
+		case FIND_ALL:
+			message = "FINAL_ALL books";
+			break;
+			
+		case FIND_ONE:
+			message = "FIND_ONE book with id " + id;
+			break;
+			
+		case SEARCH:
+			message = "SEARCHING books";
+			break;			
+
+		default:
+			break;
+		} 
+		
+		return message;
+	}
 }
