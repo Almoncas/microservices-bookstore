@@ -1,4 +1,4 @@
-package com.nttdata.nova.bookStore.entities.KafkaEntities;
+package com.nttdata.nova.bookStore.kafka.KafkaEntities;
 
 import java.util.Calendar;
 

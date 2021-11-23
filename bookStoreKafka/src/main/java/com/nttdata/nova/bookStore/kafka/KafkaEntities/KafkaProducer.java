@@ -1,4 +1,4 @@
-package com.nttdata.nova.bookStore.entities.KafkaEntities;
+package com.nttdata.nova.bookStore.kafka.KafkaEntities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

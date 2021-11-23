@@ -1,4 +1,4 @@
-package com.nttdata.nova.bookStore.configuration;
+package com.nttdata.nova.bookStore.kafka;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nttdata.nova.bookStore.dto.BookDto;
 import com.nttdata.nova.bookStore.dto.BookRegistryDto;
-import com.nttdata.nova.bookStore.entities.KafkaEntities.KafkaProducer;
 import com.nttdata.nova.bookStore.exception.InvalidDateException;
 import com.nttdata.nova.bookStore.exception.InvalidEditorialException;
 import com.nttdata.nova.bookStore.exception.InvalidIdException;
+import com.nttdata.nova.bookStore.kafka.KafkaEntities.KafkaProducer;
 import com.nttdata.nova.bookStore.service.IBookRegistryService;
 import com.nttdata.nova.bookStore.service.IBookService;
 import com.nttdata.nova.bookStore.service.IEditorialService;
