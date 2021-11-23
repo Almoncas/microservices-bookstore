@@ -10,6 +10,7 @@ import com.nttdata.nova.bookStore.repositories.IBookRepository;
 import com.nttdata.nova.bookStore.service.IBookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,12 +36,14 @@ public class BookService implements IBookService{
     }
 
     @Override
+    @Cacheable(value="books",cacheManager = "cacheManager")
     public BookDto findById(Long id){
         Optional<Book> book = bookRepository.findById(id);
         return book.isPresent() ? new BookDto(book.get()) : null;
     }
 
     @Override 
+    @Cacheable(value="books",cacheManager = "cacheManager")
     public List<BookDto> findAll(){
         List<BookDto> bookDtoList=new ArrayList<BookDto>();
         
@@ -51,6 +54,7 @@ public class BookService implements IBookService{
     }
 
     @Override
+    @Cacheable(value="books",cacheManager = "cacheManager")
     public List<BookDto> searchByTitle(String search){
         List<BookDto> bookDtoList = new ArrayList<BookDto>();
 
@@ -61,6 +65,7 @@ public class BookService implements IBookService{
     }
 
     @Override
+    @Cacheable(value="books",cacheManager = "cacheManager")
     public List<BookDto> searchByEditorial(Long id){
         List<BookDto> bookDtoList = new ArrayList<BookDto>();
 
