@@ -10,6 +10,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +50,7 @@ public class BookController {
 	
 	@PostMapping(path="/create",consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert book", description = "Insert book method", tags={"BookRestServiceWrite"})
-	@RolesAllowed("admin")
+	@PreAuthorize("hasRole('admin')")
 	public HttpEntity<BookDto> insertBook (@RequestBody BookDto book){
 		if(book.getId()!=0) {
 			throw new InvalidIdException(book.getId());
@@ -81,7 +82,7 @@ public class BookController {
 	
 	@PutMapping(path="/update", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Update book", description="Update book method", tags={"BookRestServiceWrite"})
-	@RolesAllowed("admin")
+	@PreAuthorize("hasRole('admin')")
 	public HttpEntity<BookDto> updateBook(@RequestBody BookDto book){
 
 		if(book.getId()==0) {
@@ -116,7 +117,7 @@ public class BookController {
 
 	@GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Get all books", description = "Get all books method", tags={"BookRestServiceRead"})
-	@RolesAllowed({ "admin", "user" })
+	@PreAuthorize("hasRole('admin') or hasRole('user')")
 	public HttpEntity<List<BookDto>> getAllBooks(){
 		List<BookDto> bookDtoList = bookService.findAll();
 		bookDtoList.forEach(b -> {
@@ -131,7 +132,7 @@ public class BookController {
 
 	@GetMapping(path="/get/id/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by id", description = "Find a book by id method", tags={"BookRestServiceRead"})
-	@RolesAllowed({ "admin", "user" })
+	@PreAuthorize("hasRole('admin') or hasRole('user')")
 	public HttpEntity<BookDto> getBookById(@PathVariable("id") Long id){
 		BookDto bookDto = bookService.findById(id);
 
@@ -150,7 +151,7 @@ public class BookController {
 
 	@GetMapping(path="/get/editorial", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by editorial", description = "Find a book by editorial method", tags={"BookRestServiceRead"})
-	@RolesAllowed({ "admin", "user" })
+	@PreAuthorize("hasRole('admin') or hasRole('user')")
 	public HttpEntity<List<BookDto>> getBooksByEditorial(@PathVariable Long id){
 		List<BookDto> bookDtoList = bookService.searchByEditorial(id);
 		bookDtoList.forEach(b -> {
@@ -170,7 +171,7 @@ public class BookController {
 
 	@GetMapping(path="/get/title/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find a book by title", description = "Find a book by title method", tags={"BookRestServiceRead"})
-	@RolesAllowed({ "admin", "user" })
+	@PreAuthorize("hasRole('admin') or hasRole('user')")
 	public HttpEntity<List<BookDto>> getBooksByTitle(@PathVariable("title") String title){
 		List<BookDto> bookDtoList = bookService.searchByTitle(title);
 		bookDtoList.forEach(b -> {
@@ -190,7 +191,7 @@ public class BookController {
 
 	@DeleteMapping(path="/delete/{id}")
 	@Operation(summary="Delete book", description = "Delete book method", tags={"BookRestServiceWrite"})
-	@RolesAllowed("admin")
+	@PreAuthorize("hasRole('admin')")
 	public HttpEntity<String> deleteBook(@PathVariable("id") Long id){
 		BookDto book=bookService.findById(id);
 		bookService.delete(book);
