@@ -2,6 +2,8 @@ package com.nttdata.nova.bookStore.controller;
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpEntity;
@@ -33,6 +35,7 @@ public class EditorialController {
 	
 	@PostMapping(path="/create", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Insert editorial", description="Insert editorial method", tags={"EditorialRestServiceWrite"})
+	@RolesAllowed("admin")
 	public HttpEntity<EditorialDto> insertEditorial(@RequestBody EditorialDto editorial){
 		if (editorial.getId() != 0) {
 			throw new InvalidIdException(editorial.getId());
@@ -49,6 +52,7 @@ public class EditorialController {
 
 	@PutMapping(path="/update", consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Update editorial", description="Update editorial method", tags={"EditorialRestServiceWrite"})
+	@RolesAllowed("admin")
 	public HttpEntity<EditorialDto> updateEditorial(@RequestBody EditorialDto editorial){
 		if (editorial.getId() == 0) {
 			throw new InvalidIdException(editorial.getId());
@@ -65,6 +69,7 @@ public class EditorialController {
 
 	@GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary="Get all editorials", description="Get all editorials method", tags={"EditorialRestServiceRead"})
+	@RolesAllowed({ "admin", "user" })
 	public HttpEntity<List<EditorialDto>> getAllEditorial(){
 		List<EditorialDto> editorialDtoList = editorialService.findAll();
 		editorialDtoList.forEach(e -> EditorialController.generateEditorialLinks(e));
@@ -74,6 +79,7 @@ public class EditorialController {
 
 	@GetMapping(path="/get/id/{id}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find an editorial by id", description = "Find an editorial by id method", tags={"EditorialRestServiceRead"})
+	@RolesAllowed({ "admin", "user" })
 	public HttpEntity<EditorialDto> getEditorialById(@PathVariable("id") Long id){
 		EditorialDto editorialDto = editorialService.findById(id);
 
@@ -86,6 +92,7 @@ public class EditorialController {
 
 	@GetMapping(path="/get/name/{name}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Find an editorial by name", description = "Find an editorial by name method", tags={"EditorialRestServiceRead"})
+	@RolesAllowed({ "admin", "user" })
 	public HttpEntity<List<EditorialDto>> getEditorialByName(@PathVariable("name") String name){
 		List<EditorialDto> editorialDtoList = editorialService.findByName(name);
 		editorialDtoList.forEach(e -> {
@@ -99,6 +106,7 @@ public class EditorialController {
 
 	@DeleteMapping(path="/delete/{id}")
 	@Operation(summary="Delete editorial", description="Delete editorial method", tags={"EditorialRestServiceWrite"})
+	@RolesAllowed("admin")
 	public HttpEntity<String> deleteEditorial(@PathVariable("id") Long id){
 		EditorialDto editorial = editorialService.findById(id);
 		editorialService.delete(editorial);

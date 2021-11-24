@@ -2,6 +2,8 @@ package com.nttdata.nova.bookStore.controller;
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+
 import com.nttdata.nova.bookStore.dto.BookRegistryDto;
 import com.nttdata.nova.bookStore.service.IBookRegistryService;
 
@@ -27,6 +29,7 @@ public class RegistryController {
 
     @GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary="Get all registry", description ="Get all system registries", tags={"RegistryController"})
+    @RolesAllowed({ "admin", "user" })
     public HttpEntity<List<BookRegistryDto>> getAll(){
         return new ResponseEntity<List<BookRegistryDto>>(registryService.findAll(),HttpStatus.OK);
     }
