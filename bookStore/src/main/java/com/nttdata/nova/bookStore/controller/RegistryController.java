@@ -30,7 +30,6 @@ public class RegistryController {
 
     @GetMapping(path="/get", produces=MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary="Get all registry", description ="Get all system registries", tags={"RegistryController"})
-    @PreAuthorize("hasRole('admin') or hasRole('user')")
     public HttpEntity<List<BookRegistryDto>> getAll(){
         return new ResponseEntity<List<BookRegistryDto>>(registryService.findAll(),HttpStatus.OK);
     }
