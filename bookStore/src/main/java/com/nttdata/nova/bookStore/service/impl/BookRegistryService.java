@@ -11,7 +11,7 @@ import com.nttdata.nova.bookStore.service.IBookRegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +22,7 @@ public class BookRegistryService implements IBookRegistryService {
 
     @Override
     @CacheEvict(value="registries", cacheManager="cacheManager", allEntries=true)
-    @PreAuthorize("hasRole('admin')")
+    //@PreAuthorize("hasRole('admin') or hasRole('user')")
     public BookRegistryDto save(BookRegistryDto methodRegistryDto){
         methodRegistryDto.setId(String.valueOf(methodRegistryRepository.findAll().size()+1));
         
@@ -32,7 +32,7 @@ public class BookRegistryService implements IBookRegistryService {
 
     @Override
     @Cacheable(value="registries", cacheManager="cacheManager")
-    @PreAuthorize("hasRole('admin') or hasRole('user')")
+    //@PreAuthorize("hasRole('admin') or hasRole('user')")
     public List<BookRegistryDto> findAll(){
         List<BookRegistryDto> methodRegistryDtoList = new ArrayList<BookRegistryDto>();
         

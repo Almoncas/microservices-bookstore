@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.MediaType;
 
 @RestController
-@RequestMapping("/bookstore")
+@RequestMapping("/book")
 public class BookController {
 
 	private enum bookOperation {CREATE, UPDATE, DELETE, FIND_ALL, FIND_ONE, SEARCH};
